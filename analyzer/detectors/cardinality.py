@@ -1,9 +1,6 @@
 import pandas as pd
-import seaborn as sns
 import numpy as np
-from pprint import pprint
-df = sns.load_dataset("titanic")
-df["useless"] = np.nan
+
 def cardinality(df):
     results = {}
     for col in df.columns:
@@ -50,5 +47,3 @@ def cardinality(df):
             results[col]["top_value"] = top_value
             results[col]["cv"] = None
     return results
-
-pprint(cardinality(df))
