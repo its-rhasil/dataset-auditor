@@ -3,17 +3,12 @@ import pandas as pd
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.feature_selection import mutual_info_classif, mutual_info_regression
 from analyzer.utils import is_categorical
-import seaborn as sns
-from pprint import pprint
-import plotly.express as px
-titanic = sns.load_dataset("titanic")
-iris = px.data.iris()
+
 def leakage(df, target_column):
     df1 = df.copy()
     corr = df1.select_dtypes(include="number").corr()[target_column].drop(target_column).to_dict() if not is_categorical(df[target_column]) else None
 
     encoder = OrdinalEncoder()
-    #x = df.drop(target_column, axis = 1)
     cat_columns = df1.drop(target_column,axis=1).select_dtypes(exclude='number').columns
     if len(cat_columns)> 0:
         df1[cat_columns] = encoder.fit_transform(df1[cat_columns])
@@ -49,4 +44,3 @@ def leakage(df, target_column):
         "flagged_mi": flagged_mi,
         "flagged_columns": flagged_columns
     }
-pprint(leakage(iris, "species"))
