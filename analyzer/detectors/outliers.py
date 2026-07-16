@@ -1,5 +1,7 @@
+from analyzer.utils import is_categorical
+
 def detect_outliers(df):
-    numerical_cols = df.select_dtypes(include=["number"]).columns
+    numerical_cols = [col for col in df.columns if not is_categorical(df[col])]
     result = {}
     for col in numerical_cols:
         col_data = df[col].dropna()
