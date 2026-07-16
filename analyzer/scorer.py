@@ -5,12 +5,17 @@ def score(profile: DataProfile) -> dict:
     ml_readiness_score = None
     missing_score = ((profile.missing["total_missing"] / (profile.rows * profile.columns))**2) * 30
     duplicates_score = (profile.duplicates["duplicated_pct"] / 100) * 20
-    outlier_score = ((profile.outliers["iqr_pct"] / 100)**2) * 25
-    problem_col = 0
+    outlier_problem_col = 0
+    for key, value in profile.outliers.items():
+        if value["iqr_pct"]  > 10:
+            outlier_problem_col += 1
+    outlier_score = ((outlier_problem_col / profile.columns)**2) * 25
+
+    cardinality_problem_col = 0
     for key, value in profile.cardinality.items():
         if value["is_constant"] or value["nunique"] == 0:
-            problem_col += 1
-    cardinality_score = ((problem_col/profile.columns) ** 2) * 25
+            cardinality_problem_col += 1
+    cardinality_score = ((cardinality_problem_col/profile.columns) ** 2) * 25
 
     data_quality_score = data_quality_score - missing_score - duplicates_score - outlier_score - cardinality_score
     data_quality_score = max(0,data_quality_score) # safety floor: prevents negative scores if detector outputs exceed expected ranges
@@ -19,7 +24,7 @@ def score(profile: DataProfile) -> dict:
         ml_readiness_score = 100
         missing_ml_score = ((profile.missing["total_missing"] / (profile.rows * profile.columns))**2) * 25
         target_missing_ml_score = ((profile.imbalance["missing_count"]/profile.rows) ** 2) * 20
-        cardinality_ml_score = ((problem_col/profile.columns) ** 2) * 20
+        cardinality_ml_score = ((cardinality_problem_col/profile.columns) ** 2) * 20
         imbalance_ratio = profile.imbalance["imbalance_ratio"]
         if imbalance_ratio <= 1.5:
             imbalance_score = 0
