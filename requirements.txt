@@ -1,11 +1,10 @@
 streamlit
 pandas
 numpy
+scipy
 scikit-learn
 sqlalchemy
 psycopg2-binary
 plotly
 python-dotenv
 missingno
-openpyxl
-matplotlib
