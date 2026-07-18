@@ -5,11 +5,12 @@ from analyzer.detectors.imbalance import imbalance
 from analyzer.detectors.leakage import leakage
 from analyzer.detectors.missing import detect_missing
 from analyzer.detectors.outliers import detect_outliers
+from analyzer.utils import is_categorical
 import pandas as pd
 
 def profile(filename: str, df: pd.DataFrame, target_column: str = None) -> DataProfile:
     
-    imbalance_dict = imbalance(df,target_column) if target_column else {}
+    imbalance_dict = imbalance(df,target_column) if target_column and is_categorical(df[target_column]) else {}
     leakage_dict = leakage(df, target_column) if target_column else {}
 
     return DataProfile(
