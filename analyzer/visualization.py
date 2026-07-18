@@ -1,21 +1,16 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
-from analyzer.profiler import profile
-import seaborn as sns
 import missingno as msno
-
-df = sns.load_dataset("titanic")
-test = profile("titanic",df,"survived")
 
 def plot_missing_bar(missing_dict, threshold=1.0):
     
-    pairs = [(col, stat["pct"]) for col, stat in missing_dict["columns"].items() if stat["pct"] > 1.0]
+    pairs = [(col, stat["pct"]) for col, stat in missing_dict["columns"].items() if stat["pct"] > threshold]
 
     df = pd.DataFrame(pairs, columns=["Column","Pct"])
     df = df.sort_values("Pct",ascending=False)
     fig = px.bar(df,x="Pct",y="Column",orientation='h',color="Pct",color_continuous_scale="YlOrRd")
-    fig.update_layout(title="Missing Values by Column", plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",width =1000, height=400)
+    fig.update_layout(title="Missing Values by Column", plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", height=400)
     fig.update_traces(text=df["Pct"].round(1).astype(str) + "%", textposition="outside")
     return fig
 
