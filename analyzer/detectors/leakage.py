@@ -23,7 +23,7 @@ def leakage(df, target_column):
                 structural_clones.append(col)
         x = temp[[col]]
         y = temp[target_column]
-        mi = mutual_info_classif(x, y,discrete_features=is_categorical(df[col]), random_state=42) if is_categorical(df[target_column]) else mutual_info_regression(x, y,random_state=42)
+        mi = mutual_info_classif(x, y,discrete_features=is_categorical(df[col]), random_state=42) if is_categorical(df[target_column]) else mutual_info_regression(x, y,discrete_features=is_categorical(df[col]),random_state=42)
         mi_scores[col] = mi[0]
     mi_scores = pd.Series(mi_scores)
     median = np.median(mi_scores)
