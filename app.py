@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
-
+import time 
 from analyzer.utils import is_categorical
+import traceback
 from analyzer.profiler import profile
 from analyzer.scorer import score
 from analyzer.visualization import (
@@ -170,8 +171,9 @@ analyze_button = st.button(
 )
 
 
-if analyze_button:
 
+if analyze_button:
+    
     if uploaded_file is None:
 
         st.warning(
@@ -211,7 +213,7 @@ if analyze_button:
 
 
             with st.spinner("Analyzing dataset..."):
-
+                start = time.time()
                 data_profile = profile(
                     uploaded_file.name,
                     df,
@@ -221,8 +223,8 @@ if analyze_button:
                 scores = score(
                     data_profile
                 )
-
-
+                end = time.time()
+                print(f"Analysis took {end - start:.2f} seconds")
 
             st.session_state.df = df
 
@@ -251,6 +253,7 @@ if analyze_button:
             st.error(
                 f"Dataset analysis failed: {e}"
             )
+            st.error(traceback.format_exc())
 
 
 # Display Analysis
@@ -442,47 +445,50 @@ if st.session_state.analysis_complete:
     # ML Readiness Score
 
 
-    ml_readiness_score = (
-        scores["ML Readiness"]
-    )
+    # ml_readiness_score = (
+    #     scores["ML Readiness"]
+    # )
 
 
-    with score_col2:
+    # with score_col2:
 
-        if ml_readiness_score is not None:
+    #     if ml_readiness_score is not None:
 
-            st.metric(
-                label="ML Readiness Score",
-                value=f"{ml_readiness_score:.1f} / 100",
-            )
+    #         st.metric(
+    #             label="ML Readiness Score",
+    #             value=f"{ml_readiness_score:.1f} / 100",
+    #         )
 
-            st.progress(
-                min(
-                    max(
-                        ml_readiness_score / 100,
-                        0.0,
-                    ),
-                    1.0,
-                )
-            )
+    #         st.progress(
+    #             min(
+    #                 max(
+    #                     ml_readiness_score / 100,
+    #                     0.0,
+    #                 ),
+    #                 1.0,
+    #             )
+    #         )
 
-        else:
+    #     else:
 
-            st.metric(
-                label="ML Readiness Score",
-                value="N/A",
-            )
+    #         st.metric(
+    #             label="ML Readiness Score",
+    #             value="N/A",
+    #         )
 
-            st.caption(
-                "Provide a valid target column "
-                "to calculate ML readiness."
-            )
+    #         st.caption(
+    #             "Provide a valid target column "
+    #             "to calculate ML readiness."
+    #         )
 
 
 
     # Missing Value Analysis
 
-
+    preview_df = df.head().copy()
+    bool_cols = preview_df.select_dtypes(include='bool').columns
+    preview_df[bool_cols] = preview_df[bool_cols].astype(str)
+    st.dataframe(preview_df, width='stretch', hide_index=True)
     st.divider()
 
     st.header(
@@ -526,7 +532,7 @@ if st.session_state.analysis_complete:
 
         st.plotly_chart(
             missing_fig,
-            use_container_width=True,
+            width = 'stretch',
         )
 
     else:
@@ -577,7 +583,7 @@ if st.session_state.analysis_complete:
 
                 st.pyplot(
                     heatmap_fig,
-                    use_container_width=True,
+                    width = 'stretch',
                 )
 
             except Exception as e:
@@ -625,7 +631,7 @@ if st.session_state.analysis_complete:
 
         st.plotly_chart(
             outlier_fig,
-            use_container_width=True,
+            width = 'stretch',
         )
 
     else:
@@ -675,7 +681,7 @@ if st.session_state.analysis_complete:
 
             st.plotly_chart(
                 boxplot_fig,
-                use_container_width=True,
+                width = 'stretch',
             )
 
 
@@ -738,7 +744,7 @@ if st.session_state.analysis_complete:
 
             )
 
-
+            cardinality_df["Top Value"] = cardinality_df["Top Value"].astype(str)
 
 
             cardinality_df[
@@ -810,7 +816,7 @@ if st.session_state.analysis_complete:
 
             st.dataframe(
                 styled_cardinality,
-                use_container_width=True,
+                width = 'stretch',
                 hide_index=True,
             )
 
@@ -843,21 +849,26 @@ if st.session_state.analysis_complete:
     if target_column:
         # Target Class Imbalance Analysis
 
-        st.divider()
+        
 
-        st.header(
-            "Target Class Imbalance Analysis"
-        )
+        
 
-        st.caption(
-            f"Analyze the class distribution "
-            f"of the target feature "
-            f"'{target_column}'."
-        )
+
 
 
         if data_profile.imbalance:
 
+            st.divider()
+
+            st.header(
+                "Target Class Imbalance Analysis"
+            )
+
+            st.caption(
+                f"Analyze the class distribution "
+                f"of the target feature "
+                f"'{target_column}'."
+            )
             # Imbalance Chart
 
             imbalance_fig = (
@@ -869,7 +880,7 @@ if st.session_state.analysis_complete:
 
             st.plotly_chart(
                 imbalance_fig,
-                use_container_width=True,
+                width = 'stretch',
             )
 
 
@@ -955,7 +966,7 @@ if st.session_state.analysis_complete:
 
                 st.plotly_chart(
                     mi_fig,
-                    use_container_width=True,
+                    width = 'stretch',
                 )
 
 
@@ -1020,10 +1031,10 @@ if st.session_state.analysis_complete:
 
                 st.plotly_chart(
                     corr_fig,
-                    use_container_width=True,
+                    width = 'stretch',
                 )
 
-
+            
             # Leakage Disclaimer
 
             st.info(
