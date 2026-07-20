@@ -159,9 +159,3 @@ dataset-auditor/
 - **LLM-generated summary** — plain-language executive summary of audit findings
 - **Dataset fingerprinting** — detect if the same dataset has been audited before
 - **Impossible value detection** — domain-aware flagging of out-of-range values
-
----
-
-## License
-
-MIT
